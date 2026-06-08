@@ -60,11 +60,19 @@ HRIT-v3-computational/
 ├── HRIT_I_Intero_v3.m           % I_Intero v3: three clinical pathological states
 │                                %   (Normal, DPDR, Cotard) — retained for reference
 │
-├── HRIT_I_Sim_v2.m              % I_Sim: Hierarchical Perceptual Inference (two-level POMDP)
-├── HRIT_I_Id_v1.m               % I_Id: Autobiographical Self-Modelling
-├── HRIT_I_Prec_v1.m             % I_Prec: Metacognitive Monitoring
+├── HRIT_I_Sim_v3.m              % I_Sim v3: six physiological states
+│                                %   (was I_Sim_v2.m, filename corrected + updated)
 │
-└── HRIT_Integration_v2.m        % Full integration: CII, p(Ψ), PDS, CSV state space
+├── HRIT_I_Id_v2.m               % I_Id v2: six physiological states
+│
+├── HRIT_I_Prec_v2.m             % I_Prec v2: six physiological states
+│
+├── HRIT_Integration_v3.m        % Integration v3: physiological CSV state space
+│
+├── HRIT_I_Sim_v2.m / I_Sim_v2.m  % Clinical reference — retained
+├── HRIT_I_Id_v1.m                 % Clinical reference — retained
+├── HRIT_I_Prec_v1.m               % Clinical reference — retained
+└── HRIT_Integration_v2.m          % Clinical reference — retained
 ```
 
 ---
@@ -122,7 +130,7 @@ Retained for backward compatibility. Models three clinical pathological states: 
 
 ---
 
-### `HRIT_I_Sim_v2.m` — Simulation / Hierarchical Perceptual Inference
+### `HRIT_I_Sim_v3.m` — Simulation / Hierarchical Perceptual Inference *(primary)*
 
 True two-level hierarchical POMDP using `MDP.link = 1` to pass Level-1 posteriors (tone identity; 2 states, 4 timesteps) to Level-2 (sequence pattern; 4 states, 6 trials). Reproduces MMN (Level-1 PE) and P3b (Level-2 PE) equivalents.
 
@@ -245,12 +253,15 @@ All scripts confirmed working in SPM25, MATLAB, May 2026.
 
 ```
 I_Intero v4 (physiological): Waking Rest=+0.989, Sleep N3≈+0.20, Flow≈+0.999 ✓
-I_Intero v3 (clinical):  Normal=+0.989, DPDR=+0.167, Cotard=-1.000  ✓
-I_Sim:    Normal=1.000,  Degraded=0.143, Flow=1.146   ✓
-I_Id:     Normal=1.000,  Degraded=0.347, Enhanced=1.062 ✓
-I_Prec:   Normal=1.000,  Degraded=0.254, Enhanced=4.361 ✓
-CII:      Expert Flow (2.058) > Learning Flow (1.105) > Normal (1.000) ✓
-PDS:      Normal (+0.962), DPDR (+0.152), Cotard (-0.734) ✓
+I_Intero v3 (clinical):      Normal=+0.989, DPDR=+0.167, Cotard=-1.000 ✓
+I_Sim v3  (physiological):   Rest=1.000, Exertion≈1.030, N3≈0.130, Flow≈1.140 ✓
+I_Sim v2  (clinical):        Normal=1.000, Degraded=0.143, Flow=1.146 ✓
+I_Id  v2  (physiological):   Rest=1.000, N3≈0.380, Flow≈1.050, Overload≈0.700 ✓
+I_Id  v1  (clinical):        Normal=1.000, Degraded=0.347, Enhanced=1.062 ✓
+I_Prec v2 (physiological):   Rest=1.000, N3≈0.255, Flow≈3.800, Overload≈0.500 ✓
+I_Prec v1 (clinical):        Normal=1.000, Degraded=0.254, Enhanced=4.361 ✓
+CII physiological: Flow (~1.90) > Exertion (~1.01) > Rest (1.00) > Stress (~0.94) ✓
+CII clinical:      Expert Flow (2.058) > Learning Flow (1.105) > Normal (1.000) ✓
 Sleep N3 ICP drop: model ~28%, Study 1c empirical 27.7% ✓
 ```
 
