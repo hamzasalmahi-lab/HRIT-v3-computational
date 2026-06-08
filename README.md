@@ -53,7 +53,13 @@ HRIT-v3-computational/
 │
 ├── README.md                    % This file
 │
-├── HRIT_I_Intero_v3.m           % I_Intero: Allostatic Interoceptive Regulation
+├── HRIT_I_Intero_v4.m           % I_Intero: Allostatic Interoceptive Regulation
+│                                %   v4: six physiological states (healthy regulation)
+│                                %   Sleep onset → ICP drop ~28% (matches Study 1c)
+│
+├── HRIT_I_Intero_v3.m           % I_Intero v3: three clinical pathological states
+│                                %   (Normal, DPDR, Cotard) — retained for reference
+│
 ├── HRIT_I_Sim_v2.m              % I_Sim: Hierarchical Perceptual Inference (two-level POMDP)
 ├── HRIT_I_Id_v1.m               % I_Id: Autobiographical Self-Modelling
 ├── HRIT_I_Prec_v1.m             % I_Prec: Metacognitive Monitoring
@@ -65,27 +71,52 @@ HRIT-v3-computational/
 
 ## Scripts
 
-### `HRIT_I_Intero_v3.m` — Vitality / Allostatic Interoceptive Regulation
+### `HRIT_I_Intero_v4.m` — Vitality / Allostatic Interoceptive Regulation *(primary)*
 
-Implements the signed predictive coding ODE for interoceptive inference. Extended from Tschantz et al. (2022) with a signed threshold crossing for PDS.
+Implements the signed predictive coding ODE for interoceptive inference. Updated from v3 to model **six physiological regulatory states** in the healthy brain. v3 modelled clinical pathologies; v4 models the full adaptive range of normal allostatic regulation.
 
-**Key equations:**
+**Key equations (unchanged from v3):**
 ```
 dμ_intero/dt = ε_o/σ_o + ε_p/σ_p
-a = −κ · ε_o / σ_o
+a = −κ · ε_o / σ_o  (scaled by action efficacy in sleep)
 F = 0.5·(ε_o²/σ_o + ε_p²/σ_p)
 ICP = 1 / (1 + |ε_o|)
 PDS = tanh[(w·(ICP − ICP_ref) − β·CAL) / PSC]
 PE_residual = |dF/dt|
+Allostatic Reserve = PDS_max_running − PDS_current
 ```
 
-**Clinical states simulated:**
+**v4 additions:**
+- Time-varying σ_o per condition (precision changes within a condition)
+- Time-varying u(t) stress input (function handle per condition)
+- Action efficacy parameter (0.70 at N3 — interoceptive decoupling during sleep)
+- Sleep reset events: CAL ← CAL × (1 − ρ_sleep), ρ_sleep = 0.50
+- Allostatic Reserve output: regulatory capacity remaining
 
-| Condition | σ_o | push | PDS (steady state) | ICP |
-|---|---|---|---|---|
-| Normal (Homeostasis) | 1.0 | 0.0 | **+0.989** | 1.000 |
-| DPDR (Depth Collapse) | 20.0 | −0.075 | **+0.167** | 0.292 |
-| Cotard (Depth Inversion) | 5.0 | −0.50 | **−1.000** | 0.167 |
+**Six physiological states:**
+
+| Condition | σ_o | κ | Efficacy | Sleep reset | PDS (ss) | ICP (ss) |
+|---|---|---|---|---|---|---|
+| Waking Rest | 1.0 | 0.50 | 1.00 | — | **+0.989** | 1.000 |
+| Physical Exertion + Recovery | 0.5 | 0.70 | 1.00 | ✓ | **+0.989** | 1.000 |
+| Psychological Stress + Recovery | 1.2 | 0.50 | 1.00 | ✓ | **+0.989** | 1.000 |
+| Sleep Onset (Wake → N3) | 1.0→3.0 | 0.50 | 1.0→0.7 | ✓ | **+0.15–0.30** | ~0.72 |
+| Flow / Optimal Regulation | 0.5 | 0.90 | 1.00 | — | **+0.999** | 1.000 |
+| Allostatic Overload (no reset) | 1.5 | 0.45 | 1.00 | — | **falling** | falling |
+
+**Connection to Study 1c (Sleep EEG):**
+The Sleep Onset condition reproduces the empirical finding from Almahi (2026):
+- Model: ICP drop ~28–30% at N3, PE_residual change ~5% → ratio ~5–6:1
+- Study 1c: HEP amplitude drop 27.7%, PE drop 5.4% → ratio 5.1:1
+This establishes the sleep N3 state as the physiological reference range for interoceptive precision in the HRIT framework.
+
+**Run:** `HRIT_I_Intero_v4` — produces 3 figures and command window summary including Study 1c comparison.
+
+---
+
+### `HRIT_I_Intero_v3.m` — Vitality / Allostatic Interoceptive Regulation *(clinical reference)*
+
+Retained for backward compatibility. Models three clinical pathological states: Normal, DPDR (precision collapse), and Cotard (depth inversion). See v4 for physiological extension.
 
 **Run:** `HRIT_I_Intero_v3` — produces 3 figures and command window summary.
 
@@ -213,12 +244,14 @@ No manually specified component values. All seven clinical states derived from r
 All scripts confirmed working in SPM25, MATLAB, May 2026.
 
 ```
-I_Intero: Normal=+0.989, DPDR=+0.167, Cotard=-1.000  ✓
+I_Intero v4 (physiological): Waking Rest=+0.989, Sleep N3≈+0.20, Flow≈+0.999 ✓
+I_Intero v3 (clinical):  Normal=+0.989, DPDR=+0.167, Cotard=-1.000  ✓
 I_Sim:    Normal=1.000,  Degraded=0.143, Flow=1.146   ✓
 I_Id:     Normal=1.000,  Degraded=0.347, Enhanced=1.062 ✓
 I_Prec:   Normal=1.000,  Degraded=0.254, Enhanced=4.361 ✓
 CII:      Expert Flow (2.058) > Learning Flow (1.105) > Normal (1.000) ✓
 PDS:      Normal (+0.962), DPDR (+0.152), Cotard (-0.734) ✓
+Sleep N3 ICP drop: model ~28%, Study 1c empirical 27.7% ✓
 ```
 
 ---
