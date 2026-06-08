@@ -70,6 +70,8 @@ ICP_ref  = 0.25;       % ICP reference level
 % Sleep reset
 rho_sleep   = 0.50;    % fraction of CAL cleared per sleep event (50% per cycle)
                        %   from fnd-precision-dynamics: PopulationParams.rho_sleep
+u_sleep     = 0.045;   % sustained interoceptive signal during N3
+                       %   produces ~28% ICP drop at N3 (Study 1c: 27.7%)
 
 % Standard autonomic efficiency
 kappa_std   = 0.5;     % default autonomic learning rate
